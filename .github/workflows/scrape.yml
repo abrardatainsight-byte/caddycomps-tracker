@@ -10,13 +10,15 @@ jobs:
   scrape_and_email:
     runs-on: ubuntu-latest
     
-    # This permission is CRITICAL. It allows the GitHub bot to push the CSV back to the repo.
     permissions:
       contents: write 
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # <--- THE FIX: Downloads full history so Git can rebase properly
+          ref: main       # <--- THE FIX: Forces the runner to attach explicitly to the main branch
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -42,10 +44,8 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add caddycomps_master_data.csv
           
-          # Only commit and push if there are actual changes
           if ! git diff --cached --quiet; then
             git commit -m "Auto-update master scraped data"
-            git fetch origin
             git pull --rebase origin main
             git push origin main
           else
