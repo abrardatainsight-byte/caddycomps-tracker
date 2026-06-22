@@ -45,8 +45,9 @@ jobs:
           # Only commit and push if there are actual changes
           if ! git diff --cached --quiet; then
             git commit -m "Auto-update master scraped data"
-            git pull --rebase
-            git push
+            git fetch origin
+            git pull --rebase origin main
+            git push origin main
           else
             echo "No new data to commit."
           fi
